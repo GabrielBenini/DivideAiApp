@@ -13,4 +13,10 @@ class GroupRepositoryImpl @Inject constructor(
     override suspend fun getGroupById(id: Long): Group{
         return groupApi.getGroupById(id).toDomain()
     }
+
+    override suspend fun getGroupsByUserId(userId: Long): List<Group> {
+        return groupApi.getGroupsByUserId(userId).map { groupResponseDto ->
+            groupResponseDto.toDomain()
+        }
+    }
 }
