@@ -1,4 +1,8 @@
 package com.gabriel.beini.divideaiapp
 
-class DivideAiApplication {
+import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
+
+@HiltAndroidApp
+class DivideAiApplication: Application() {
 }
