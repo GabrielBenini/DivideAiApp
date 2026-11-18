@@ -1,4 +1,4 @@
-package com.gabriel.beini.divideaiapp.ui.theme
+package com.gabriel.beini.divideaiapp.core.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
