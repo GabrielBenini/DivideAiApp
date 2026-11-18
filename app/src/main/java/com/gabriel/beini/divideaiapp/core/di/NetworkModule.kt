@@ -1,6 +1,7 @@
 package com.gabriel.beini.divideaiapp.core.di
 
 import com.gabriel.beini.divideaiapp.core.network.NetworkConstants
+import com.gabriel.beini.divideaiapp.feature.group.data.remote.api.GroupApi
 import com.gabriel.beini.divideaiapp.feature.user.data.remote.api.UserApi
 import dagger.Module
 import dagger.Provides
@@ -45,6 +46,13 @@ object NetworkModule {
     fun provideUserApi(
         retrofit: Retrofit
     ): UserApi{
+        return retrofit.create()
+    }
+
+    @Provides
+    fun provideGroupApi(
+        retrofit: Retrofit
+    ): GroupApi{
         return retrofit.create()
     }
 }

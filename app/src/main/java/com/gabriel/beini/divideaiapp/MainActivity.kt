@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.gabriel.beini.divideaiapp.core.ui.theme.DivideAiAppTheme
+import com.gabriel.beini.divideaiapp.feature.group.presentation.screen.GroupScreen
 import com.gabriel.beini.divideaiapp.feature.user.presentation.screen.UserScreen
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -15,7 +16,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             DivideAiAppTheme {
-                UserScreen()
+                GroupScreen()
             }
         }
     }
