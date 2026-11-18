@@ -2,9 +2,11 @@ package com.gabriel.beini.divideaiapp.feature.user.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gabriel.beini.divideaiapp.feature.user.domain.model.User
+import com.gabriel.beini.divideaiapp.feature.user.domain.usecase.CreateUserUseCase
+import com.gabriel.beini.divideaiapp.feature.user.domain.usecase.DeleteUserUseCase
 import com.gabriel.beini.divideaiapp.feature.user.domain.usecase.GetUserByIdUseCase
 import com.gabriel.beini.divideaiapp.feature.user.domain.usecase.GetUsersUseCase
+import com.gabriel.beini.divideaiapp.feature.user.domain.usecase.UpdateUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,6 +18,9 @@ import kotlin.coroutines.cancellation.CancellationException
 class UserViewModel @Inject constructor(
     private val getUsersUseCase: GetUsersUseCase,
     private val getUserByIdUseCase: GetUserByIdUseCase,
+    private val createUserUseCase: CreateUserUseCase,
+    private val updateUserUseCase: UpdateUserUseCase,
+    private val deleteUserUseCase: DeleteUserUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<UserUiState>(
@@ -58,6 +63,63 @@ class UserViewModel @Inject constructor(
             } catch (e: Exception) {
                 _uiState.value = UserUiState.Error(
                     message = e.message ?: "Erro ao buscar usuario"
+                )
+            }
+        }
+    }
+
+    fun createUser(name: String){
+        viewModelScope.launch {
+            _uiState.value = UserUiState.Loading
+
+            try {
+                val createdUser = createUserUseCase(name)
+
+                _uiState.value = UserUiState.UserDetailSuccess(createdUser)
+            } catch (e: CancellationException){
+                throw e
+
+            } catch (e: Exception) {
+                _uiState.value = UserUiState.Error(
+                    message = e.message ?: "Erro ao criar usuario"
+                )
+            }
+        }
+    }
+
+    fun updateUser(id: Long, newName: String){
+        viewModelScope.launch {
+            _uiState.value = UserUiState.Loading
+
+            try {
+                val updatedUser = updateUserUseCase(id, newName)
+
+                _uiState.value = UserUiState.UserDetailSuccess(updatedUser)
+            } catch (e: CancellationException){
+                throw e
+
+            } catch (e: Exception) {
+                _uiState.value = UserUiState.Error(
+                    message = e.message ?: "Erro ao atualizar usuario"
+                )
+            }
+        }
+    }
+
+    fun deleteUser(id: Long){
+        viewModelScope.launch {
+            _uiState.value = UserUiState.Loading
+
+            try {
+                deleteUserUseCase(id)
+
+                _uiState.value = UserUiState.DeletedUserSuccess
+            } catch (e: CancellationException){
+                throw e
+
+            } catch (e: Exception){
+                _uiState.value = UserUiState.Error(
+                    message = e.message ?: "Erro ao excluir usuario"
                 )
             }
         }

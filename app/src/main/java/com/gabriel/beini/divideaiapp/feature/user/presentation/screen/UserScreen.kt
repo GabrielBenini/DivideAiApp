@@ -30,7 +30,8 @@ fun UserScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.loadUserById(12)
+//        viewModel.deleteUser(2)
+        viewModel.loadUsers()
     }
 
     Box(
@@ -80,6 +81,10 @@ fun UserScreen(
                     Text(text = "ID: ${state.user.id}")
                     Text(text = state.user.name)
                 }
+            }
+
+            is UserUiState.DeletedUserSuccess -> {
+                Text(text = "Usuário excluído com sucesso!")
             }
 
             is UserUiState.Error -> {
