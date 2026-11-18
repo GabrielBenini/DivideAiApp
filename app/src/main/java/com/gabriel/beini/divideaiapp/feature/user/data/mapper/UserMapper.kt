@@ -1,6 +1,6 @@
 package com.gabriel.beini.divideaiapp.feature.user.data.mapper
 
-import com.gabriel.beini.divideaiapp.feature.user.data.remote.dto.UserResponseDto
+import com.gabriel.beini.divideaiapp.feature.user.data.remote.dto.response.UserResponseDto
 import com.gabriel.beini.divideaiapp.feature.user.domain.model.User
 import java.time.LocalDateTime
 

@@ -1,4 +1,4 @@
-package com.gabriel.beini.divideaiapp.feature.user.data.remote.dto
+package com.gabriel.beini.divideaiapp.feature.user.data.remote.dto.response
 
 data class UserResponseDto(
     val id: Long,

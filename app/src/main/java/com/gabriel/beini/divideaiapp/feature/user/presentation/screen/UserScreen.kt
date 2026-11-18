@@ -30,7 +30,7 @@ fun UserScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.loadUsers()
+        viewModel.loadUserById(12)
     }
 
     Box(
@@ -48,7 +48,8 @@ fun UserScreen(
             is UserUiState.Success -> {
                 if (state.users.isEmpty()) {
                     Text(text = "Nenhum usuário cadastrado")
-                } else {
+                }
+                else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -67,6 +68,17 @@ fun UserScreen(
                             }
                         }
                     }
+                }
+            }
+
+            is UserUiState.UserDetailSuccess -> {
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    Text(text = "ID: ${state.user.id}")
+                    Text(text = state.user.name)
                 }
             }
 

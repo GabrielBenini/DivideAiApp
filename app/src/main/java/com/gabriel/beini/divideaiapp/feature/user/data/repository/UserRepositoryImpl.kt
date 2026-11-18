@@ -16,4 +16,8 @@ class UserRepositoryImpl @Inject constructor(
             userResponseDto.toDomain()
         }
     }
+
+    override suspend fun getUserById(id: Long): User {
+        return userApi.getUserById(id).toDomain()
+    }
 }
