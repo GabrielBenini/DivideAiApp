@@ -1,6 +1,7 @@
 package com.gabriel.beini.divideaiapp.core.di
 
 import com.gabriel.beini.divideaiapp.core.network.NetworkConstants
+import com.gabriel.beini.divideaiapp.feature.user.data.remote.api.UserApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -9,6 +10,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.create
 import javax.inject.Singleton
 
 @Module
@@ -37,5 +39,12 @@ object NetworkModule {
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+    }
+
+    @Provides
+    fun provideUserApi(
+        retrofit: Retrofit
+    ): UserApi{
+        return retrofit.create()
     }
 }
