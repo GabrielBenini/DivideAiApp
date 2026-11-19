@@ -30,10 +30,8 @@ fun GroupScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.createGroup(
-            name = "Praia com a galerraaa",
-            createdByUserId = 1L
-        )
+        viewModel.loadGroupsByUserId(1)
+//        viewModel.updateGroup(1, "teste de update")
     }
 
     Box(

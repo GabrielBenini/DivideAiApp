@@ -11,4 +11,10 @@ interface GroupRepository {
     suspend fun createGroup(
         name: String,
         createdByUserId: Long
-    ): Group}
+    ): Group
+
+    suspend fun updateGroup(
+        groupId: Long,
+        name: String
+    ): Group
+}
