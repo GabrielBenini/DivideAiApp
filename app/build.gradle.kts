@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.gabriel.beini.divideaiapp"
+    namespace = "com.gabriel.benini.divideaiapp"
     compileSdk {
         version = release(37) {
             minorApiLevel = 1
