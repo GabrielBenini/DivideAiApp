@@ -14,7 +14,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.gabriel.beini.divideaiapp"
+        applicationId = "com.gabriel.benini.divideaiapp"
         minSdk = 26
         targetSdk = 36
         versionCode = 1

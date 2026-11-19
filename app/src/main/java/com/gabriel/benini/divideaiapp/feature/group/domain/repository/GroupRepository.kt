@@ -17,4 +17,8 @@ interface GroupRepository {
         groupId: Long,
         name: String
     ): Group
+
+    suspend fun deleteGroup(
+        groupId: Long
+    )
 }

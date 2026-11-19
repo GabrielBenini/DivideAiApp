@@ -30,7 +30,6 @@ fun GroupScreen(
 
     LaunchedEffect(Unit) {
         viewModel.loadGroupsByUserId(1)
-//        viewModel.updateGroup(1, "teste de update")
     }
 
     Box(
@@ -80,6 +79,10 @@ fun GroupScreen(
                     Text(text = "ID: ${state.group.id}")
                     Text(text = state.group.name)
                 }
+            }
+
+            is GroupUiState.DeletedGroupSuccess -> {
+                Text(text = "Grupo excluido com sucesso")
             }
 
             is GroupUiState.Error -> {

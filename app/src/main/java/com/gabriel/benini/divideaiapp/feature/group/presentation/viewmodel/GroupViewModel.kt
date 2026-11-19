@@ -3,6 +3,7 @@ package com.gabriel.benini.divideaiapp.feature.group.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gabriel.benini.divideaiapp.feature.group.domain.usecase.CreateGroupUseCase
+import com.gabriel.benini.divideaiapp.feature.group.domain.usecase.DeleteGroupUseCase
 import com.gabriel.benini.divideaiapp.feature.group.domain.usecase.GetGroupByIdUseCase
 import com.gabriel.benini.divideaiapp.feature.group.domain.usecase.GetGroupsByUserIdUseCase
 import com.gabriel.benini.divideaiapp.feature.group.domain.usecase.UpdateGroupUseCase
@@ -19,7 +20,8 @@ class GroupViewModel @Inject constructor(
     private val getGroupsByUserIdUseCase: GetGroupsByUserIdUseCase,
     private val createGroupUseCase: CreateGroupUseCase,
     private val updateGroupUseCase: UpdateGroupUseCase,
-): ViewModel() {
+    private val deleteGroupUseCase: DeleteGroupUseCase,
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow<GroupUiState>(GroupUiState.Loading)
 
@@ -33,10 +35,10 @@ class GroupViewModel @Inject constructor(
 
                 val group = getGroupByIdUseCase(id)
                 _uiState.value = GroupUiState.Success(group)
-            } catch (e: CancellationException){
+            } catch (e: CancellationException) {
                 throw e
 
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _uiState.value = GroupUiState.Error(
                     message = e.message ?: "Erro ao buscar grupo"
                 )
@@ -44,7 +46,7 @@ class GroupViewModel @Inject constructor(
         }
     }
 
-    fun loadGroupsByUserId(userId: Long){
+    fun loadGroupsByUserId(userId: Long) {
         viewModelScope.launch {
             _uiState.value = GroupUiState.Loading
 
@@ -52,10 +54,10 @@ class GroupViewModel @Inject constructor(
 
                 val groups = getGroupsByUserIdUseCase(userId)
                 _uiState.value = GroupUiState.GroupsListSuccess(groups)
-            } catch (e: CancellationException){
+            } catch (e: CancellationException) {
                 throw e
 
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _uiState.value = GroupUiState.Error(
                     message = e.message ?: "Erro ao buscar grupos pelo userId"
                 )
@@ -82,19 +84,37 @@ class GroupViewModel @Inject constructor(
         }
     }
 
-    fun updateGroup(groupId: Long, name: String){
+    fun updateGroup(groupId: Long, name: String) {
         viewModelScope.launch {
             _uiState.value = GroupUiState.Loading
 
             try {
                 val updatedGroup = updateGroupUseCase(groupId, name)
                 _uiState.value = GroupUiState.Success(updatedGroup)
-            } catch (e: CancellationException){
+            } catch (e: CancellationException) {
                 throw e
 
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _uiState.value = GroupUiState.Error(
                     message = e.message ?: "Erro ao atualizar grupo"
+                )
+            }
+        }
+    }
+
+    fun deleteGroup(groupId: Long) {
+        viewModelScope.launch {
+            _uiState.value = GroupUiState.Loading
+
+            try {
+                deleteGroupUseCase(groupId)
+                _uiState.value = GroupUiState.DeletedGroupSuccess
+            } catch (e: CancellationException) {
+                throw e
+
+            } catch (e: Exception) {
+                _uiState.value = GroupUiState.Error(
+                    message = e.message ?: "Erro ao excluir grupo"
                 )
             }
         }

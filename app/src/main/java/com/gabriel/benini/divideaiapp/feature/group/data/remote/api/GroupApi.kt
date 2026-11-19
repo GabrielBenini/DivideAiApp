@@ -4,6 +4,7 @@ import com.gabriel.benini.divideaiapp.feature.group.data.remote.dto.request.Crea
 import com.gabriel.benini.divideaiapp.feature.group.data.remote.dto.request.UpdateGroupRequestDto
 import com.gabriel.benini.divideaiapp.feature.group.data.remote.dto.response.GroupResponseDto
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -32,4 +33,7 @@ interface GroupApi {
         @Path("groupId") groupId: Long,
         @Body request: UpdateGroupRequestDto
     ): GroupResponseDto
+
+    @DELETE("/api/groups/{groupId}")
+    suspend fun deleteGroup(@Path("groupId") groupId: Long)
 }

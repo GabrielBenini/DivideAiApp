@@ -37,4 +37,8 @@ class GroupRepositoryImpl @Inject constructor(
     override suspend fun updateGroup(groupId: Long, name: String): Group {
         return groupApi.updateGroup(groupId, UpdateGroupRequestDto(name)).toDomain()
     }
+
+    override suspend fun deleteGroup(groupId: Long) {
+        return groupApi.deleteGroup(groupId)
+    }
 }
