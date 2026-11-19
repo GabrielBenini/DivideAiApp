@@ -1,7 +1,10 @@
 package com.gabriel.beini.divideaiapp.feature.group.data.remote.api
 
+import com.gabriel.beini.divideaiapp.feature.group.data.remote.dto.request.CreateGroupRequestDto
 import com.gabriel.beini.divideaiapp.feature.group.data.remote.dto.response.GroupResponseDto
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -13,5 +16,12 @@ interface GroupApi {
     ): GroupResponseDto
 
     @GET("/api/groups")
-    suspend fun getGroupsByUserId(@Query("userId") userId: Long): List<GroupResponseDto>
+    suspend fun getGroupsByUserId(
+        @Query("userId") userId: Long
+    ): List<GroupResponseDto>
+
+    @POST("/api/groups")
+    suspend fun createGroup(
+        @Body request: CreateGroupRequestDto
+    ): GroupResponseDto
 }

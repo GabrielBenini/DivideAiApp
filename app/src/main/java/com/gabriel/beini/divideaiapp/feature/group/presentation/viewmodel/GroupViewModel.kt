@@ -2,6 +2,7 @@ package com.gabriel.beini.divideaiapp.feature.group.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gabriel.beini.divideaiapp.feature.group.domain.usecase.CreateGroupUseCase
 import com.gabriel.beini.divideaiapp.feature.group.domain.usecase.GetGroupByIdUseCase
 import com.gabriel.beini.divideaiapp.feature.group.domain.usecase.GetGroupsByUserIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,6 +16,7 @@ import javax.inject.Inject
 class GroupViewModel @Inject constructor(
     private val getGroupByIdUseCase: GetGroupByIdUseCase,
     private val getGroupsByUserIdUseCase: GetGroupsByUserIdUseCase,
+    private val createGroupUseCase: CreateGroupUseCase,
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow<GroupUiState>(GroupUiState.Loading)
@@ -54,6 +56,25 @@ class GroupViewModel @Inject constructor(
             } catch (e: Exception){
                 _uiState.value = GroupUiState.Error(
                     message = e.message ?: "Erro ao buscar grupos pelo userId"
+                )
+            }
+        }
+    }
+
+    fun createGroup(name: String, createdByUserId: Long) {
+        viewModelScope.launch {
+            _uiState.value = GroupUiState.Loading
+
+            try {
+                val createdGroup = createGroupUseCase(name, createdByUserId)
+                _uiState.value = GroupUiState.Success(createdGroup)
+
+            } catch (e: CancellationException) {
+                throw e
+
+            } catch (e: Exception) {
+                _uiState.value = GroupUiState.Error(
+                    message = e.message ?: "Erro ao criar grupo"
                 )
             }
         }
