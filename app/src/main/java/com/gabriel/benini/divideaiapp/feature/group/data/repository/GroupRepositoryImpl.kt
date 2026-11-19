@@ -5,6 +5,7 @@ import com.gabriel.benini.divideaiapp.feature.group.data.remote.api.GroupApi
 import com.gabriel.benini.divideaiapp.feature.group.data.remote.dto.request.CreateGroupRequestDto
 import com.gabriel.benini.divideaiapp.feature.group.data.remote.dto.request.UpdateGroupRequestDto
 import com.gabriel.benini.divideaiapp.feature.group.domain.model.Group
+import com.gabriel.benini.divideaiapp.feature.group.domain.model.GroupMember
 import com.gabriel.benini.divideaiapp.feature.group.domain.repository.GroupRepository
 import javax.inject.Inject
 
@@ -40,5 +41,11 @@ class GroupRepositoryImpl @Inject constructor(
 
     override suspend fun deleteGroup(groupId: Long) {
         return groupApi.deleteGroup(groupId)
+    }
+
+    override suspend fun getGroupMembers(groupId: Long): List<GroupMember> {
+        return groupApi.getGroupMembers(groupId).map { groupMemberResponseDto ->
+            groupMemberResponseDto.toDomain()
+        }
     }
 }

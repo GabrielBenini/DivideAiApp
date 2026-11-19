@@ -1,6 +1,7 @@
 package com.gabriel.benini.divideaiapp.feature.group.domain.repository
 
 import com.gabriel.benini.divideaiapp.feature.group.domain.model.Group
+import com.gabriel.benini.divideaiapp.feature.group.domain.model.GroupMember
 
 interface GroupRepository {
 
@@ -21,4 +22,8 @@ interface GroupRepository {
     suspend fun deleteGroup(
         groupId: Long
     )
+
+    suspend fun getGroupMembers(
+        groupId: Long
+    ): List<GroupMember>
 }

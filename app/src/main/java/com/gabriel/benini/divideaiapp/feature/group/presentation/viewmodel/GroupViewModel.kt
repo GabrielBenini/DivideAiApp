@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.gabriel.benini.divideaiapp.feature.group.domain.usecase.CreateGroupUseCase
 import com.gabriel.benini.divideaiapp.feature.group.domain.usecase.DeleteGroupUseCase
 import com.gabriel.benini.divideaiapp.feature.group.domain.usecase.GetGroupByIdUseCase
+import com.gabriel.benini.divideaiapp.feature.group.domain.usecase.GetGroupMembersUseCase
 import com.gabriel.benini.divideaiapp.feature.group.domain.usecase.GetGroupsByUserIdUseCase
 import com.gabriel.benini.divideaiapp.feature.group.domain.usecase.UpdateGroupUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +22,7 @@ class GroupViewModel @Inject constructor(
     private val createGroupUseCase: CreateGroupUseCase,
     private val updateGroupUseCase: UpdateGroupUseCase,
     private val deleteGroupUseCase: DeleteGroupUseCase,
+    private val getGroupMembersUseCase: GetGroupMembersUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<GroupUiState>(GroupUiState.Loading)
@@ -115,6 +117,24 @@ class GroupViewModel @Inject constructor(
             } catch (e: Exception) {
                 _uiState.value = GroupUiState.Error(
                     message = e.message ?: "Erro ao excluir grupo"
+                )
+            }
+        }
+    }
+
+    fun getGroupMembers(groupId: Long){
+        viewModelScope.launch {
+            _uiState.value = GroupUiState.Loading
+
+            try {
+                val members = getGroupMembersUseCase(groupId)
+                _uiState.value = GroupUiState.GroupMembersSuccess(members)
+            } catch (e: CancellationException){
+                throw e
+
+            } catch (e: Exception){
+                _uiState.value = GroupUiState.Error(
+                    message = e.message ?: "Erro ao buscar usuarios do grupo"
                 )
             }
         }

@@ -29,7 +29,7 @@ fun GroupScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.loadGroupsByUserId(1)
+        viewModel.getGroupMembers(3)
     }
 
     Box(
@@ -44,12 +44,39 @@ fun GroupScreen(
                 CircularProgressIndicator()
             }
 
+            is GroupUiState.GroupMembersSuccess -> {
+
+                if (state.members.isEmpty()){
+                    Text("Nenhum membro no grupo")
+                } else{
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            items = state.members,
+                            key = { member -> member.id }
+                        ) { member ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            ) {
+                                Text(text = "User id: ${member.userId}")
+                                Text(text = member.userName)
+                                Text(text = "Joined at: ${member.joinedAt}")
+                            }
+                        }
+                    }
+                }
+            }
+
             is GroupUiState.GroupsListSuccess -> {
 
                 if (state.groups.isEmpty()) {
                     Text("Nenhum Grupo Encontrado")
                 } else {
-
 
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
