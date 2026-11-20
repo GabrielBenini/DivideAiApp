@@ -11,4 +11,5 @@ sealed interface GroupUiState{
     data class Error(val message: String): GroupUiState
     data class GroupsListSuccess(val groups: List<Group>): GroupUiState
     data class GroupMembersSuccess(val members: List<GroupMember>): GroupUiState
+    data class GroupMemberSuccess(val member: GroupMember): GroupUiState
 }

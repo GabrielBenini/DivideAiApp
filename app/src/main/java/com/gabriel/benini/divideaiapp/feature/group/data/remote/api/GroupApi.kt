@@ -1,5 +1,6 @@
 package com.gabriel.benini.divideaiapp.feature.group.data.remote.api
 
+import com.gabriel.benini.divideaiapp.feature.group.data.remote.dto.request.AddGroupMemberRequestDto
 import com.gabriel.benini.divideaiapp.feature.group.data.remote.dto.request.CreateGroupRequestDto
 import com.gabriel.benini.divideaiapp.feature.group.data.remote.dto.request.UpdateGroupRequestDto
 import com.gabriel.benini.divideaiapp.feature.group.data.remote.dto.response.GroupMemberResponseDto
@@ -40,4 +41,10 @@ interface GroupApi {
 
     @GET("/api/groups/{groupId}/members")
     suspend fun getGroupMembers(@Path("groupId") groupId: Long): List<GroupMemberResponseDto>
+
+    @POST("/api/groups/{groupId}/members")
+    suspend fun addGroupMember(
+        @Path("groupId") groupId: Long,
+        @Body request: AddGroupMemberRequestDto
+    ): GroupMemberResponseDto
 }

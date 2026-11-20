@@ -2,6 +2,7 @@ package com.gabriel.benini.divideaiapp.feature.group.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gabriel.benini.divideaiapp.feature.group.domain.usecase.AddGroupMemberUseCase
 import com.gabriel.benini.divideaiapp.feature.group.domain.usecase.CreateGroupUseCase
 import com.gabriel.benini.divideaiapp.feature.group.domain.usecase.DeleteGroupUseCase
 import com.gabriel.benini.divideaiapp.feature.group.domain.usecase.GetGroupByIdUseCase
@@ -23,6 +24,7 @@ class GroupViewModel @Inject constructor(
     private val updateGroupUseCase: UpdateGroupUseCase,
     private val deleteGroupUseCase: DeleteGroupUseCase,
     private val getGroupMembersUseCase: GetGroupMembersUseCase,
+    private val addGroupMemberUseCase: AddGroupMemberUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<GroupUiState>(GroupUiState.Loading)
@@ -135,6 +137,24 @@ class GroupViewModel @Inject constructor(
             } catch (e: Exception){
                 _uiState.value = GroupUiState.Error(
                     message = e.message ?: "Erro ao buscar usuarios do grupo"
+                )
+            }
+        }
+    }
+
+    fun addGroupMember(groupId: Long, userId: Long){
+        viewModelScope.launch {
+            _uiState.value = GroupUiState.Loading
+
+            try {
+                val member = addGroupMemberUseCase(groupId, userId)
+                _uiState.value = GroupUiState.GroupMemberSuccess(member)
+            }catch (e: CancellationException){
+                throw e
+
+            }catch (e: Exception){
+                _uiState.value = GroupUiState.Error(
+                    message = e.message ?: "Erro ao adicionar membro ao grupo"
                 )
             }
         }

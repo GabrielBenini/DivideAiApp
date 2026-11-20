@@ -26,4 +26,9 @@ interface GroupRepository {
     suspend fun getGroupMembers(
         groupId: Long
     ): List<GroupMember>
+
+    suspend fun addGroupMember(
+        groupId: Long,
+        userId: Long
+    ): GroupMember
 }

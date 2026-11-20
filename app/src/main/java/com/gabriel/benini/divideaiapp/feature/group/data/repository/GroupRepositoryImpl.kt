@@ -2,6 +2,7 @@ package com.gabriel.benini.divideaiapp.feature.group.data.repository
 
 import com.gabriel.benini.divideaiapp.feature.group.data.mapper.toDomain
 import com.gabriel.benini.divideaiapp.feature.group.data.remote.api.GroupApi
+import com.gabriel.benini.divideaiapp.feature.group.data.remote.dto.request.AddGroupMemberRequestDto
 import com.gabriel.benini.divideaiapp.feature.group.data.remote.dto.request.CreateGroupRequestDto
 import com.gabriel.benini.divideaiapp.feature.group.data.remote.dto.request.UpdateGroupRequestDto
 import com.gabriel.benini.divideaiapp.feature.group.domain.model.Group
@@ -47,5 +48,9 @@ class GroupRepositoryImpl @Inject constructor(
         return groupApi.getGroupMembers(groupId).map { groupMemberResponseDto ->
             groupMemberResponseDto.toDomain()
         }
+    }
+
+    override suspend fun addGroupMember(groupId: Long, userId: Long): GroupMember {
+        return groupApi.addGroupMember(groupId, AddGroupMemberRequestDto(userId)).toDomain()
     }
 }

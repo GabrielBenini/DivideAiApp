@@ -29,7 +29,8 @@ fun GroupScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.getGroupMembers(3)
+        //        viewModel.loadGroupsByUserId(3)
+        //        viewModel.addGroupMember(2, 3)
     }
 
     Box(
@@ -42,6 +43,12 @@ fun GroupScreen(
 
             is GroupUiState.Loading -> {
                 CircularProgressIndicator()
+            }
+
+            is GroupUiState.GroupMemberSuccess -> {
+                Column() {
+                    Text(text = "${state.member.userName} adicionado com sucesso ao grupo.")
+                }
             }
 
             is GroupUiState.GroupMembersSuccess -> {
