@@ -47,4 +47,10 @@ interface GroupApi {
         @Path("groupId") groupId: Long,
         @Body request: AddGroupMemberRequestDto
     ): GroupMemberResponseDto
+
+    @DELETE("/api/groups/{groupId}/members/{userId}")
+    suspend fun deleteGroupMember(
+        @Path("groupId") groupId: Long,
+        @Path("userId") userId: Long
+    )
 }

@@ -53,4 +53,8 @@ class GroupRepositoryImpl @Inject constructor(
     override suspend fun addGroupMember(groupId: Long, userId: Long): GroupMember {
         return groupApi.addGroupMember(groupId, AddGroupMemberRequestDto(userId)).toDomain()
     }
+
+    override suspend fun deleteGroupMember(groupId: Long, userId: Long) {
+        return groupApi.deleteGroupMember(groupId, userId)
+    }
 }

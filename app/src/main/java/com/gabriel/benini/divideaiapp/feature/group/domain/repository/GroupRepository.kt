@@ -31,4 +31,9 @@ interface GroupRepository {
         groupId: Long,
         userId: Long
     ): GroupMember
+
+    suspend fun deleteGroupMember(
+        groupId: Long,
+        userId: Long
+    )
 }

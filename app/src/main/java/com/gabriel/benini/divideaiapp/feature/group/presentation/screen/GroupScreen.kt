@@ -29,8 +29,8 @@ fun GroupScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        //        viewModel.loadGroupsByUserId(3)
-        //        viewModel.addGroupMember(2, 3)
+        viewModel.getGroupMembers(2)
+//        viewModel.deleteGroupMember(2,3)
     }
 
     Box(
@@ -48,6 +48,12 @@ fun GroupScreen(
             is GroupUiState.GroupMemberSuccess -> {
                 Column() {
                     Text(text = "${state.member.userName} adicionado com sucesso ao grupo.")
+                }
+            }
+
+            is GroupUiState.DeletedGroupMemberSuccess -> {
+                Column() {
+                    Text(text = "Usuario excluido com sucesso do grupo.")
                 }
             }
 
