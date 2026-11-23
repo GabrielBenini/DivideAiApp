@@ -13,4 +13,10 @@ class ExpenseRepositoryImpl @Inject constructor(
     override suspend fun getExpenseById(expenseId: Long): Expense{
         return expenseApi.getExpenseById(expenseId).toDomain()
     }
+
+    override suspend fun getExpenseByGroupId(groupId: Long): List<Expense> {
+        return expenseApi.getExpensesByGroupId(groupId).map { expense ->
+            expense.toDomain()
+        }
+    }
 }

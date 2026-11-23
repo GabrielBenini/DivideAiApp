@@ -3,6 +3,7 @@ package com.gabriel.benini.divideaiapp.feature.expense.data.remote.api
 import com.gabriel.benini.divideaiapp.feature.expense.data.remote.dto.response.ExpenseResponseDto
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ExpenseApi {
 
@@ -10,4 +11,9 @@ interface ExpenseApi {
     suspend fun getExpenseById(
         @Path("expenseId") expenseId: Long
     ): ExpenseResponseDto
+
+    @GET("/api/expenses")
+    suspend fun getExpensesByGroupId(
+        @Query("groupId") groupId: Long
+    ): List<ExpenseResponseDto>
 }

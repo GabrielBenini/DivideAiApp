@@ -7,4 +7,8 @@
         suspend fun getExpenseById(
             expenseId: Long
         ): Expense
+
+        suspend fun getExpenseByGroupId(
+            groupId: Long
+        ): List<Expense>
     }

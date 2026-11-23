@@ -7,4 +7,5 @@ sealed interface ExpenseUiState{
     data object Loading: ExpenseUiState
     data class Error(val message: String): ExpenseUiState
     data class Success(val expense: Expense): ExpenseUiState
+    data class ExpenseListSuccess(val expenses: List<Expense>): ExpenseUiState
 }
