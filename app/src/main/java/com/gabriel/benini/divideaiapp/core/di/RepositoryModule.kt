@@ -1,5 +1,7 @@
 package com.gabriel.benini.divideaiapp.core.di
 
+import com.gabriel.benini.divideaiapp.feature.expense.data.repository.ExpenseRepositoryImpl
+import com.gabriel.benini.divideaiapp.feature.expense.domain.repository.ExpenseRepository
 import com.gabriel.benini.divideaiapp.feature.group.data.repository.GroupRepositoryImpl
 import com.gabriel.benini.divideaiapp.feature.group.domain.repository.GroupRepository
 import com.gabriel.benini.divideaiapp.feature.user.data.repository.UserRepositoryImpl
@@ -18,6 +20,9 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindGroupRepository(groupRepositoryImpl: GroupRepositoryImpl): GroupRepository
+
+    @Binds
+    abstract fun bindExpenseRepository(expenseRepositoryImpl: ExpenseRepositoryImpl): ExpenseRepository
 
 
 }
