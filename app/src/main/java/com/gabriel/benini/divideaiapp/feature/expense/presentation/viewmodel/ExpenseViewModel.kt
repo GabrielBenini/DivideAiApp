@@ -2,6 +2,7 @@ package com.gabriel.benini.divideaiapp.feature.expense.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gabriel.benini.divideaiapp.feature.expense.domain.usecase.CreateExpenseUseCase
 import com.gabriel.benini.divideaiapp.feature.expense.domain.usecase.GetExpenseByGroupIdUseCase
 import com.gabriel.benini.divideaiapp.feature.expense.domain.usecase.GetExpenseByIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,6 +16,7 @@ import javax.inject.Inject
 class ExpenseViewModel @Inject constructor(
     private val getExpenseByIdUseCase: GetExpenseByIdUseCase,
     private val getExpenseByGroupIdUseCase: GetExpenseByGroupIdUseCase,
+    private val createExpenseUseCase: CreateExpenseUseCase,
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow<ExpenseUiState>(ExpenseUiState.Loading)
@@ -52,6 +54,34 @@ class ExpenseViewModel @Inject constructor(
             } catch (e: Exception){
                 _uiState.value = ExpenseUiState.Error(
                     message = "Erro ao buscar expenses pelo group id ${e}"
+                )
+            }
+        }
+    }
+
+    fun createExpense(
+        description: String,
+        amountInCents: Long,
+        paidByUserId: Long,
+        groupId: Long
+    ){
+        viewModelScope.launch {
+            _uiState.value = ExpenseUiState.Loading
+
+            try {
+                val createdExpense = createExpenseUseCase(
+                    description = description,
+                    amountInCents = amountInCents,
+                    paidByUserId = paidByUserId,
+                    groupId = groupId
+                )
+                _uiState.value = ExpenseUiState.Success(createdExpense)
+            } catch (e: CancellationException){
+                throw e
+
+            } catch (e: Exception){
+                _uiState.value = ExpenseUiState.Error(
+                    message = "Erro ao criar expense ${e}"
                 )
             }
         }

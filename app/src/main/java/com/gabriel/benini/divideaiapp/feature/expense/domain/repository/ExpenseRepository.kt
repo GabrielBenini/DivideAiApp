@@ -11,4 +11,11 @@
         suspend fun getExpenseByGroupId(
             groupId: Long
         ): List<Expense>
+
+        suspend fun createExpense(
+            description: String,
+            amountInCents: Long,
+            paidByUserId: Long,
+            groupId: Long
+        ): Expense
     }
