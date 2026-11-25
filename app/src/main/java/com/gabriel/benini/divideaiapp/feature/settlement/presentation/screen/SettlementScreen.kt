@@ -21,7 +21,7 @@ fun SettlementScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.getGroupBalance(groupId = 3L)
+        viewModel.getGroupSettlement(groupId = 3L)
     }
 
     Column(
@@ -33,6 +33,45 @@ fun SettlementScreen(
         when (val state = uiState) {
             SettlementUiState.Loading -> {
                 CircularProgressIndicator()
+            }
+
+            is SettlementUiState.GroupSettlementSuccess -> {
+                val settlement = state.settlement
+
+                Text("Group ID: ${settlement.groupId}")
+                Text("Group Name: ${settlement.groupName}")
+                Text("Total Amount: ${settlement.totalAmountInCents}")
+                Text("Participants: ${settlement.participantCount}")
+
+                HorizontalDivider()
+
+                Text("Transferências necessárias")
+
+                if (settlement.transfers.isEmpty()) {
+                    Text("Nenhuma transferência necessária")
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(
+                            items = settlement.transfers,
+                            key = { "${it.fromUserId}-${it.toUserId}" }
+                        ) { transfer ->
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text("From User ID: ${transfer.fromUserId}")
+                                Text("From User Name: ${transfer.fromUserName}")
+                                Text("To User ID: ${transfer.toUserId}")
+                                Text("To User Name: ${transfer.toUserName}")
+                                Text("Amount: ${transfer.amountInCents}")
+
+                                HorizontalDivider()
+                            }
+                        }
+                    }
+                }
             }
 
             is SettlementUiState.GroupBalanceSuccess -> {
