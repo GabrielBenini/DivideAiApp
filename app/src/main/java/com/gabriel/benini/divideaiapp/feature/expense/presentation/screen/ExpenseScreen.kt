@@ -1,6 +1,7 @@
 package com.gabriel.benini.divideaiapp.feature.expense.presentation.screen
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,15 +9,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.gabriel.benini.divideaiapp.feature.expense.presentation.viewmodel.ExpenseUiState
+import com.gabriel.benini.divideaiapp.feature.expense.presentation.viewmodel.ExpenseContract
 import com.gabriel.benini.divideaiapp.feature.expense.presentation.viewmodel.ExpenseViewModel
 
 @Composable
@@ -26,76 +33,127 @@ fun ExpenseScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-//        viewModel.getExpenseByGroupId(3)
-        viewModel.getGroupExpensesSummary(groupId = 3)
+    val snackbarHostState = remember {
+        SnackbarHostState()
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-
-        when (val state = uiState) {
-
-            is ExpenseUiState.Loading -> {
-                CircularProgressIndicator()
+    LaunchedEffect(viewModel) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is ExpenseContract.Effect.ShowMessage -> {
+                    snackbarHostState.showSnackbar(effect.message)
+                }
             }
+        }
+    }
 
-            is ExpenseUiState.DeletedExpenseSuccess -> {
-                Text(text = "Expense excluida com sucesso")
-            }
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(
+            ExpenseContract.Event.LoadExpensesByGroupId(3L)
+        )
+    }
 
-            is ExpenseUiState.ExpenseSummarySuccess -> {
-                Text(text = "GroupId: ${state.summary.groupId}")
-                Text(text = "TotalAmountInCents: ${state.summary.totalAmountInCents}")
-                Text(text = "ExpensesCount: ${state.summary.expenseCount}")
-            }
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState
+            )
+        }
+    ) { innerPadding ->
 
-            is ExpenseUiState.Success -> {
-                Text(text = "ID: ${state.expense.id}")
-                Text(text = "Descrição: ${state.expense.description}")
-                Text(text = "Valor em centavos: ${state.expense.amountInCents}")
-                Text(text = "Pago por: ${state.expense.paidByUserName}")
-                Text(text = "Grupo ID: ${state.expense.groupId}")
-                Text(text = "Criado em: ${state.expense.createdAt}")
-            }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
 
-            is ExpenseUiState.ExpenseListSuccess -> {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
 
-                if (state.expenses.isEmpty()){
-                    Text("Nenhuma Despesa Encontrada")
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                uiState.errorMessage?.let { message ->
+                    item {
+                        Text(text = message)
+                    }
+                }
+
+                uiState.summary?.let { summary ->
+                    item {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text("Resumo das despesas")
+                            Text("Group ID: ${summary.groupId}")
+                            Text("Total: ${summary.totalAmountInCents}")
+                            Text("Expense Count: ${summary.expenseCount}")
+
+                            HorizontalDivider()
+                        }
+                    }
+                }
+
+                uiState.selectedExpense?.let { expense ->
+                    item {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text("Despesa selecionada")
+                            Text("ID: ${expense.id}")
+                            Text("Descrição: ${expense.description}")
+                            Text("Valor: ${expense.amountInCents}")
+                            Text("Pago por: ${expense.paidByUserName}")
+                            Text("Group ID: ${expense.groupId}")
+                            Text("Criado em: ${expense.createdAt}")
+
+                            HorizontalDivider()
+                        }
+                    }
+                }
+
+                uiState.expensesGroupId?.let { groupId ->
+
+                    item {
+                        Text("Despesas do grupo $groupId")
+                    }
+
+                    if (
+                        uiState.expenses.isEmpty() &&
+                        !uiState.isLoading
                     ) {
+                        item {
+                            Text("Nenhuma despesa encontrada")
+                        }
+                    }
 
-                        items(
-                            items = state.expenses,
-                            key = { expenses -> expenses.id }
-                        ) { expense ->
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            ){
-                                Text("Id: ${expense.id}")
-                                Text("groupId: ${expense.groupId}")
-                                Text("Description: ${expense.description}")
-                                Text("Created At: ${expense.createdAt}")
-                                Text("Amount in Cents: ${expense.amountInCents}")
-                                Text("Paid By: ${expense.paidByUserName}")
-                            }
+                    items(
+                        items = uiState.expenses,
+                        key = { expense -> expense.id }
+                    ) { expense ->
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text("ID: ${expense.id}")
+                            Text("Group ID: ${expense.groupId}")
+                            Text("Descrição: ${expense.description}")
+                            Text("Valor: ${expense.amountInCents}")
+                            Text("Pago por: ${expense.paidByUserName}")
+                            Text("Criado em: ${expense.createdAt}")
+
+                            HorizontalDivider()
                         }
                     }
                 }
             }
 
-            is ExpenseUiState.Error -> {
-                Text(text = state.message)
+            if (uiState.isLoading) {
+                CircularProgressIndicator()
             }
         }
     }
