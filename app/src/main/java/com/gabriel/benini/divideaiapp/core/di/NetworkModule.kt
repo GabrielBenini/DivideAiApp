@@ -3,6 +3,7 @@ package com.gabriel.benini.divideaiapp.core.di
 import com.gabriel.benini.divideaiapp.core.network.NetworkConstants
 import com.gabriel.benini.divideaiapp.feature.expense.data.remote.api.ExpenseApi
 import com.gabriel.benini.divideaiapp.feature.group.data.remote.api.GroupApi
+import com.gabriel.benini.divideaiapp.feature.settlement.data.remote.api.SettlementApi
 import com.gabriel.benini.divideaiapp.feature.user.data.remote.api.UserApi
 import dagger.Module
 import dagger.Provides
@@ -61,6 +62,13 @@ object NetworkModule {
     fun provideExpenseApi(
         retrofit: Retrofit
     ): ExpenseApi{
+        return retrofit.create()
+    }
+
+    @Provides
+    fun provideSettlementApi(
+        retrofit: Retrofit
+    ): SettlementApi {
         return retrofit.create()
     }
 }

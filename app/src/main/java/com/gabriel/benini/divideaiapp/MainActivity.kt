@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import com.gabriel.benini.divideaiapp.core.ui.theme.DivideAiAppTheme
 import com.gabriel.benini.divideaiapp.feature.expense.presentation.screen.ExpenseScreen
 import com.gabriel.benini.divideaiapp.feature.group.presentation.screen.GroupScreen
+import com.gabriel.benini.divideaiapp.feature.settlement.presentation.screen.SettlementScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -16,7 +17,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             DivideAiAppTheme {
-                ExpenseScreen()
+                SettlementScreen()
             }
         }
     }
