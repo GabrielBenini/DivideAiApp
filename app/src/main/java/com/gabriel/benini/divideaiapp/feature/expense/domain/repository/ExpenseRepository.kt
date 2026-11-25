@@ -18,4 +18,11 @@
             paidByUserId: Long,
             groupId: Long
         ): Expense
+
+        suspend fun updateExpense(
+            expenseId: Long,
+            description: String,
+            amountInCents: Long,
+            paidByUserId: Long
+        ): Expense
     }
