@@ -8,51 +8,115 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SettlementViewModel @Inject constructor(
     private val getGroupBalanceUseCase: GetGroupBalanceUseCase,
-    private val getGroupSettlementUseCase: GetGroupSettlementUseCase,
-): ViewModel(){
-    private val _uiState = MutableStateFlow<SettlementUiState>(
-        value = SettlementUiState.Loading
-    )
+    private val getGroupSettlementUseCase: GetGroupSettlementUseCase
+) : ViewModel() {
 
+    private val _uiState = MutableStateFlow(SettlementContract.State())
     val uiState = _uiState.asStateFlow()
 
-    fun getGroupBalance(groupId: Long){
+    fun onEvent(event: SettlementContract.Event) {
+        when (event) {
+
+            is SettlementContract.Event.LoadGroupBalance ->
+                loadGroupBalance(event.groupId)
+
+            is SettlementContract.Event.LoadGroupSettlement ->
+                loadGroupSettlement(event.groupId)
+
+            SettlementContract.Event.ClearError ->
+                clearError()
+        }
+    }
+
+    private fun loadGroupBalance(groupId: Long) {
         viewModelScope.launch {
-            _uiState.value = SettlementUiState.Loading
+            startLoading()
 
             try {
-                val groupBalance = getGroupBalanceUseCase(groupId)
-                _uiState.value = SettlementUiState.GroupBalanceSuccess(groupBalance)
-            } catch (e: CancellationException){
+                val balance = getGroupBalanceUseCase(groupId)
+
+                _uiState.update { state ->
+                    state.copy(
+                        isLoading = false,
+                        balance = balance,
+
+                        settlement = state.settlement
+                            ?.takeIf { it.groupId == groupId }
+                    )
+                }
+
+            } catch (e: CancellationException) {
                 throw e
-            } catch (e: Exception){
-                _uiState.value = SettlementUiState.Error(
-                    message = e.message ?: "Erro ao consultar saldo do grupo"
+
+            } catch (e: Exception) {
+                handleError(
+                    e,
+                    "Erro ao consultar saldo do grupo"
                 )
             }
         }
     }
 
-    fun getGroupSettlement(groupId: Long){
+    private fun loadGroupSettlement(groupId: Long) {
         viewModelScope.launch {
-            _uiState.value = SettlementUiState.Loading
+            startLoading()
 
             try {
-                val groupSettlement = getGroupSettlementUseCase(groupId)
-                _uiState.value = SettlementUiState.GroupSettlementSuccess(groupSettlement)
-            } catch (e: CancellationException){
+                val settlement = getGroupSettlementUseCase(groupId)
+
+                _uiState.update { state ->
+                    state.copy(
+                        isLoading = false,
+                        settlement = settlement,
+
+                        balance = state.balance
+                            ?.takeIf { it.groupId == groupId }
+                    )
+                }
+
+            } catch (e: CancellationException) {
                 throw e
-            } catch (e: Exception){
-                _uiState.value = SettlementUiState.Error(
-                    message = e.message ?: "Erro ao consultar settlement do grupo"
+
+            } catch (e: Exception) {
+                handleError(
+                    e,
+                    "Erro ao consultar fechamento do grupo"
                 )
             }
+        }
+    }
+
+    private fun startLoading() {
+        _uiState.update {
+            it.copy(
+                isLoading = true,
+                errorMessage = null
+            )
+        }
+    }
+
+    private fun handleError(
+        exception: Exception,
+        defaultMessage: String
+    ) {
+        _uiState.update {
+            it.copy(
+                isLoading = false,
+                errorMessage = exception.message ?: defaultMessage
+            )
+        }
+    }
+
+    private fun clearError() {
+        _uiState.update {
+            it.copy(errorMessage = null)
         }
     }
 }
