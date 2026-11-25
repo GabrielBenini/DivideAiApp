@@ -43,6 +43,10 @@ fun ExpenseScreen(
                 CircularProgressIndicator()
             }
 
+            is ExpenseUiState.DeletedExpenseSuccess -> {
+                Text(text = "Expense excluida com sucesso")
+            }
+
             is ExpenseUiState.Success -> {
                 Text(text = "ID: ${state.expense.id}")
                 Text(text = "Descrição: ${state.expense.description}")

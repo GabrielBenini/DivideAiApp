@@ -4,6 +4,7 @@ import com.gabriel.benini.divideaiapp.feature.expense.data.remote.dto.request.Cr
 import com.gabriel.benini.divideaiapp.feature.expense.data.remote.dto.request.UpdateExpenseRequestDto
 import com.gabriel.benini.divideaiapp.feature.expense.data.remote.dto.response.ExpenseResponseDto
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -32,4 +33,9 @@ interface ExpenseApi {
         @Path("expenseId") expenseId: Long,
         @Body request: UpdateExpenseRequestDto
     ): ExpenseResponseDto
+
+    @DELETE("/api/expenses/{expenseId}")
+    suspend fun deleteExpense(
+        @Path("expenseId") expenseId: Long
+    )
 }

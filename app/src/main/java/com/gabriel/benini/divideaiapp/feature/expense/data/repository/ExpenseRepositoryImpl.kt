@@ -57,4 +57,8 @@ class ExpenseRepositoryImpl @Inject constructor(
             request = request
         ).toDomain()
     }
+
+    override suspend fun deleteExpense(expenseId: Long) {
+        expenseApi.deleteExpense(expenseId)
+    }
 }

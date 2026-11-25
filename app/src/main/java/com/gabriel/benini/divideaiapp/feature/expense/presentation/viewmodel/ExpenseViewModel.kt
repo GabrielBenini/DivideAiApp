@@ -3,6 +3,7 @@ package com.gabriel.benini.divideaiapp.feature.expense.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gabriel.benini.divideaiapp.feature.expense.domain.usecase.CreateExpenseUseCase
+import com.gabriel.benini.divideaiapp.feature.expense.domain.usecase.DeleteExpenseUseCase
 import com.gabriel.benini.divideaiapp.feature.expense.domain.usecase.GetExpenseByGroupIdUseCase
 import com.gabriel.benini.divideaiapp.feature.expense.domain.usecase.GetExpenseByIdUseCase
 import com.gabriel.benini.divideaiapp.feature.expense.domain.usecase.UpdateExpenseUseCase
@@ -19,6 +20,7 @@ class ExpenseViewModel @Inject constructor(
     private val getExpenseByGroupIdUseCase: GetExpenseByGroupIdUseCase,
     private val createExpenseUseCase: CreateExpenseUseCase,
     private val updateExpenseUseCase: UpdateExpenseUseCase,
+    private val deleteExpenseUseCase: DeleteExpenseUseCase,
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow<ExpenseUiState>(ExpenseUiState.Loading)
@@ -113,6 +115,26 @@ class ExpenseViewModel @Inject constructor(
             } catch (e: Exception){
                 _uiState.value = ExpenseUiState.Error(
                     message = "Erro ao atualizar expense ${e}"
+                )
+            }
+        }
+    }
+
+    fun deleteExpense(
+        expenseId: Long
+    ){
+        viewModelScope.launch {
+            _uiState.value = ExpenseUiState.Loading
+
+            try {
+                deleteExpenseUseCase(expenseId)
+                _uiState.value = ExpenseUiState.DeletedExpenseSuccess
+            } catch (e: CancellationException){
+                throw e
+
+            } catch (e: Exception){
+                _uiState.value = ExpenseUiState.Error(
+                    message = "Erro ao deletar expense ${e}"
                 )
             }
         }

@@ -25,4 +25,8 @@
             amountInCents: Long,
             paidByUserId: Long
         ): Expense
+
+        suspend fun deleteExpense(
+            expenseId: Long
+        )
     }
