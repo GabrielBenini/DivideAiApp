@@ -6,19 +6,24 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.gabriel.benini.divideaiapp.feature.group.presentation.viewmodel.GroupUiState
+import com.gabriel.benini.divideaiapp.feature.group.presentation.viewmodel.GroupContract
 import com.gabriel.benini.divideaiapp.feature.group.presentation.viewmodel.GroupViewModel
 
 @Composable
@@ -28,105 +33,131 @@ fun GroupScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        viewModel.getGroupMembers(2)
-//        viewModel.deleteGroupMember(2,3)
+    val snackbarHostState = remember {
+        SnackbarHostState()
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding(),
-    ) {
+    LaunchedEffect(viewModel) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is GroupContract.Effect.ShowMessage -> {
+                    snackbarHostState.showSnackbar(effect.message)
+                }
+            }
+        }
+    }
 
-        when (val state = uiState) {
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(
+            GroupContract.Event.LoadGroupsByUserId(1L)
+        )
+    }
 
-            is GroupUiState.Loading -> {
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState
+            )
+        }
+    ) { innerPadding ->
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+
+                uiState.errorMessage?.let { message ->
+                    item {
+                        Text(text = message)
+                    }
+                }
+
+                uiState.selectedGroup?.let { group ->
+                    item {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text("Grupo selecionado")
+                            Text("ID: ${group.id}")
+                            Text("Nome: ${group.name}")
+                            Text("Created at: ${group.createdAt}")
+
+                            HorizontalDivider()
+                        }
+                    }
+                }
+
+                item {
+                    Text("Lista de grupos")
+                }
+
+                if (uiState.groups.isEmpty() && !uiState.isLoading) {
+                    item {
+                        Text("Nenhum grupo na lista")
+                    }
+                }
+
+                items(
+                    items = uiState.groups,
+                    key = { group -> "group-${group.id}" }
+                ) { group ->
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text("ID: ${group.id}")
+                        Text("Nome: ${group.name}")
+
+                        HorizontalDivider()
+                    }
+                }
+
+                uiState.membersGroupId?.let { groupId ->
+
+                    item {
+                        Text("Membros do grupo $groupId")
+                    }
+
+                    if (uiState.members.isEmpty() && !uiState.isLoading) {
+                        item {
+                            Text("Nenhum membro encontrado")
+                        }
+                    }
+
+                    items(
+                        items = uiState.members,
+                        key = { member -> "member-${member.id}" }
+                    ) { member ->
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text("User ID: ${member.userId}")
+                            Text("Nome: ${member.userName}")
+                            Text("Joined at: ${member.joinedAt}")
+
+                            HorizontalDivider()
+                        }
+                    }
+                }
+            }
+
+            if (uiState.isLoading) {
                 CircularProgressIndicator()
-            }
-
-            is GroupUiState.GroupMemberSuccess -> {
-                Column() {
-                    Text(text = "${state.member.userName} adicionado com sucesso ao grupo.")
-                }
-            }
-
-            is GroupUiState.DeletedGroupMemberSuccess -> {
-                Column() {
-                    Text(text = "Usuario excluido com sucesso do grupo.")
-                }
-            }
-
-            is GroupUiState.GroupMembersSuccess -> {
-
-                if (state.members.isEmpty()){
-                    Text("Nenhum membro no grupo")
-                } else{
-
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(
-                            items = state.members,
-                            key = { member -> member.id }
-                        ) { member ->
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            ) {
-                                Text(text = "User id: ${member.userId}")
-                                Text(text = member.userName)
-                                Text(text = "Joined at: ${member.joinedAt}")
-                            }
-                        }
-                    }
-                }
-            }
-
-            is GroupUiState.GroupsListSuccess -> {
-
-                if (state.groups.isEmpty()) {
-                    Text("Nenhum Grupo Encontrado")
-                } else {
-
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(
-                            items = state.groups,
-                            key = { group -> group.id }
-                        ) { group ->
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                            ) {
-                                Text(text = group.name)
-                                Text(text = "ID: ${group.id}")
-                            }
-                        }
-
-                    }
-                }
-            }
-
-            is GroupUiState.Success -> {
-
-                Column() {
-                    Text(text = "ID: ${state.group.id}")
-                    Text(text = state.group.name)
-                }
-            }
-
-            is GroupUiState.DeletedGroupSuccess -> {
-                Text(text = "Grupo excluido com sucesso")
-            }
-
-            is GroupUiState.Error -> {
-                Text(text = state.message)
             }
         }
     }
