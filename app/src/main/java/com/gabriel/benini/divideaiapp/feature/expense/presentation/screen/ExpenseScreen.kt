@@ -27,7 +27,8 @@ fun ExpenseScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.getExpenseByGroupId(3)
+//        viewModel.getExpenseByGroupId(3)
+        viewModel.getGroupExpensesSummary(groupId = 3)
     }
 
     Column(
@@ -45,6 +46,12 @@ fun ExpenseScreen(
 
             is ExpenseUiState.DeletedExpenseSuccess -> {
                 Text(text = "Expense excluida com sucesso")
+            }
+
+            is ExpenseUiState.ExpenseSummarySuccess -> {
+                Text(text = "GroupId: ${state.summary.groupId}")
+                Text(text = "TotalAmountInCents: ${state.summary.totalAmountInCents}")
+                Text(text = "ExpensesCount: ${state.summary.expenseCount}")
             }
 
             is ExpenseUiState.Success -> {

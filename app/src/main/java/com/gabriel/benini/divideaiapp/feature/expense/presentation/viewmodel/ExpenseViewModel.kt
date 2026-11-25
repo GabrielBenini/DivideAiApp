@@ -6,6 +6,7 @@ import com.gabriel.benini.divideaiapp.feature.expense.domain.usecase.CreateExpen
 import com.gabriel.benini.divideaiapp.feature.expense.domain.usecase.DeleteExpenseUseCase
 import com.gabriel.benini.divideaiapp.feature.expense.domain.usecase.GetExpenseByGroupIdUseCase
 import com.gabriel.benini.divideaiapp.feature.expense.domain.usecase.GetExpenseByIdUseCase
+import com.gabriel.benini.divideaiapp.feature.expense.domain.usecase.GetGroupExpensesSummaryUseCase
 import com.gabriel.benini.divideaiapp.feature.expense.domain.usecase.UpdateExpenseUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -21,23 +22,24 @@ class ExpenseViewModel @Inject constructor(
     private val createExpenseUseCase: CreateExpenseUseCase,
     private val updateExpenseUseCase: UpdateExpenseUseCase,
     private val deleteExpenseUseCase: DeleteExpenseUseCase,
-): ViewModel() {
+    private val getGroupExpensesSummaryUseCase: GetGroupExpensesSummaryUseCase
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ExpenseUiState>(ExpenseUiState.Loading)
 
     val uiState = _uiState.asStateFlow()
 
-    fun getExpenseById(expenseId: Long){
+    fun getExpenseById(expenseId: Long) {
         viewModelScope.launch {
             _uiState.value = ExpenseUiState.Loading
 
             try {
                 val expense = getExpenseByIdUseCase(expenseId)
                 _uiState.value = ExpenseUiState.Success(expense)
-            }catch (e: CancellationException){
+            } catch (e: CancellationException) {
                 throw e
 
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _uiState.value = ExpenseUiState.Error(
                     message = "Erro ao buscar expense pelo id ${e}"
                 )
@@ -45,17 +47,17 @@ class ExpenseViewModel @Inject constructor(
         }
     }
 
-    fun getExpenseByGroupId(groupId: Long){
+    fun getExpenseByGroupId(groupId: Long) {
         viewModelScope.launch {
             _uiState.value = ExpenseUiState.Loading
 
             try {
                 val groupExpense = getExpenseByGroupIdUseCase(groupId)
                 _uiState.value = ExpenseUiState.ExpenseListSuccess(groupExpense)
-            }catch (e: CancellationException){
+            } catch (e: CancellationException) {
                 throw e
 
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _uiState.value = ExpenseUiState.Error(
                     message = "Erro ao buscar expenses pelo group id ${e}"
                 )
@@ -68,7 +70,7 @@ class ExpenseViewModel @Inject constructor(
         amountInCents: Long,
         paidByUserId: Long,
         groupId: Long
-    ){
+    ) {
         viewModelScope.launch {
             _uiState.value = ExpenseUiState.Loading
 
@@ -80,10 +82,10 @@ class ExpenseViewModel @Inject constructor(
                     groupId = groupId
                 )
                 _uiState.value = ExpenseUiState.Success(createdExpense)
-            } catch (e: CancellationException){
+            } catch (e: CancellationException) {
                 throw e
 
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _uiState.value = ExpenseUiState.Error(
                     message = "Erro ao criar expense ${e}"
                 )
@@ -96,7 +98,7 @@ class ExpenseViewModel @Inject constructor(
         description: String,
         amountInCents: Long,
         paidByUserId: Long
-    ){
+    ) {
         viewModelScope.launch {
 
             _uiState.value = ExpenseUiState.Loading
@@ -109,10 +111,10 @@ class ExpenseViewModel @Inject constructor(
                     paidByUserId
                 )
                 _uiState.value = ExpenseUiState.Success(updatedExpense)
-            } catch (e: CancellationException){
+            } catch (e: CancellationException) {
                 throw e
 
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _uiState.value = ExpenseUiState.Error(
                     message = "Erro ao atualizar expense ${e}"
                 )
@@ -122,19 +124,40 @@ class ExpenseViewModel @Inject constructor(
 
     fun deleteExpense(
         expenseId: Long
-    ){
+    ) {
         viewModelScope.launch {
             _uiState.value = ExpenseUiState.Loading
 
             try {
                 deleteExpenseUseCase(expenseId)
                 _uiState.value = ExpenseUiState.DeletedExpenseSuccess
-            } catch (e: CancellationException){
+            } catch (e: CancellationException) {
                 throw e
 
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _uiState.value = ExpenseUiState.Error(
                     message = "Erro ao deletar expense ${e}"
+                )
+            }
+        }
+    }
+
+    fun getGroupExpensesSummary(
+        groupId: Long,
+    ) {
+        viewModelScope.launch {
+
+            _uiState.value = ExpenseUiState.Loading
+
+            try {
+                val expensesSummary = getGroupExpensesSummaryUseCase(groupId)
+                _uiState.value = ExpenseUiState.ExpenseSummarySuccess(expensesSummary)
+            }catch (e: CancellationException) {
+                throw e
+
+            } catch (e: Exception) {
+                _uiState.value = ExpenseUiState.Error(
+                    message = "Erro ao buscar expenseSummary ${e}"
                 )
             }
         }

@@ -1,6 +1,7 @@
 package com.gabriel.benini.divideaiapp.feature.expense.presentation.viewmodel
 
 import com.gabriel.benini.divideaiapp.feature.expense.domain.model.Expense
+import com.gabriel.benini.divideaiapp.feature.expense.domain.model.ExpenseSummary
 
 sealed interface ExpenseUiState{
 
@@ -9,4 +10,5 @@ sealed interface ExpenseUiState{
     data class Error(val message: String): ExpenseUiState
     data class Success(val expense: Expense): ExpenseUiState
     data class ExpenseListSuccess(val expenses: List<Expense>): ExpenseUiState
+    data class ExpenseSummarySuccess(val summary: ExpenseSummary): ExpenseUiState
 }

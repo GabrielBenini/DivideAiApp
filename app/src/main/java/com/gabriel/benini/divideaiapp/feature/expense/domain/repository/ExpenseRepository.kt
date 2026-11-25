@@ -1,6 +1,7 @@
     package com.gabriel.benini.divideaiapp.feature.expense.domain.repository
 
     import com.gabriel.benini.divideaiapp.feature.expense.domain.model.Expense
+    import com.gabriel.benini.divideaiapp.feature.expense.domain.model.ExpenseSummary
 
     interface ExpenseRepository {
 
@@ -11,6 +12,10 @@
         suspend fun getExpenseByGroupId(
             groupId: Long
         ): List<Expense>
+
+        suspend fun getGroupExpensesSummary(
+            groupId: Long
+        ): ExpenseSummary
 
         suspend fun createExpense(
             description: String,

@@ -5,6 +5,7 @@ import com.gabriel.benini.divideaiapp.feature.expense.data.remote.api.ExpenseApi
 import com.gabriel.benini.divideaiapp.feature.expense.data.remote.dto.request.CreateExpenseRequestDto
 import com.gabriel.benini.divideaiapp.feature.expense.data.remote.dto.request.UpdateExpenseRequestDto
 import com.gabriel.benini.divideaiapp.feature.expense.domain.model.Expense
+import com.gabriel.benini.divideaiapp.feature.expense.domain.model.ExpenseSummary
 import com.gabriel.benini.divideaiapp.feature.expense.domain.repository.ExpenseRepository
 import javax.inject.Inject
 
@@ -60,5 +61,9 @@ class ExpenseRepositoryImpl @Inject constructor(
 
     override suspend fun deleteExpense(expenseId: Long) {
         expenseApi.deleteExpense(expenseId)
+    }
+
+    override suspend fun getGroupExpensesSummary(groupId: Long): ExpenseSummary {
+        return expenseApi.getGroupExpensesSummary(groupId).toDomain()
     }
 }

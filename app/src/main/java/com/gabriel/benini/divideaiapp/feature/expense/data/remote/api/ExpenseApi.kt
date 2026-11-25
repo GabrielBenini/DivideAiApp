@@ -3,6 +3,7 @@ package com.gabriel.benini.divideaiapp.feature.expense.data.remote.api
 import com.gabriel.benini.divideaiapp.feature.expense.data.remote.dto.request.CreateExpenseRequestDto
 import com.gabriel.benini.divideaiapp.feature.expense.data.remote.dto.request.UpdateExpenseRequestDto
 import com.gabriel.benini.divideaiapp.feature.expense.data.remote.dto.response.ExpenseResponseDto
+import com.gabriel.benini.divideaiapp.feature.expense.data.remote.dto.response.ExpenseSummaryResponseDto
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -22,6 +23,11 @@ interface ExpenseApi {
     suspend fun getExpensesByGroupId(
         @Query("groupId") groupId: Long
     ): List<ExpenseResponseDto>
+
+    @GET("/api/expenses/summary")
+    suspend fun getGroupExpensesSummary(
+        @Query("groupId") groupId: Long
+    ): ExpenseSummaryResponseDto
 
     @POST("/api/expenses")
     suspend fun createExpense(
