@@ -9,7 +9,10 @@ import com.gabriel.benini.divideaiapp.feature.user.domain.usecase.GetUsersUseCas
 import com.gabriel.benini.divideaiapp.feature.user.domain.usecase.UpdateUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
@@ -23,105 +26,197 @@ class UserViewModel @Inject constructor(
     private val deleteUserUseCase: DeleteUserUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<UserUiState>(
-        UserUiState.Loading
-    )
-
+    private val _uiState = MutableStateFlow(UserContract.State())
     val uiState = _uiState.asStateFlow()
 
-    fun loadUsers() {
+    private val _effect = MutableSharedFlow<UserContract.Effect>()
+    val effect = _effect.asSharedFlow()
+
+    fun onEvent(event: UserContract.Event) {
+        when (event) {
+            UserContract.Event.LoadUsers ->
+                loadUsers()
+
+            is UserContract.Event.LoadUserById ->
+                loadUserById(event.id)
+
+            is UserContract.Event.CreateUser ->
+                createUser(event.name)
+
+            is UserContract.Event.UpdateUser ->
+                updateUser(event.id, event.newName)
+
+            is UserContract.Event.DeleteUser ->
+                deleteUser(event.id)
+
+            UserContract.Event.ClearError ->
+                clearError()
+        }
+    }
+
+    private fun loadUsers() {
         viewModelScope.launch {
-            _uiState.value = UserUiState.Loading
+            startLoading()
 
             try {
                 val users = getUsersUseCase()
 
-                _uiState.value = UserUiState.Success(users)
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        users = users
+                    )
+                }
 
             } catch (e: CancellationException) {
                 throw e
 
             } catch (e: Exception) {
-                _uiState.value = UserUiState.Error(
-                    message = e.message ?: "Erro ao carregar usuários"
-                )
+                handleError(e, "Erro ao carregar usuários")
             }
         }
     }
 
-    fun loadUserById(id: Long){
+    private fun loadUserById(id: Long) {
         viewModelScope.launch {
-            _uiState.value = UserUiState.Loading
+            startLoading()
 
             try {
                 val user = getUserByIdUseCase(id)
 
-                _uiState.value = UserUiState.UserDetailSuccess(user)
-            } catch (e: CancellationException){
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        selectedUser = user
+                    )
+                }
+
+            } catch (e: CancellationException) {
                 throw e
 
             } catch (e: Exception) {
-                _uiState.value = UserUiState.Error(
-                    message = e.message ?: "Erro ao buscar usuario"
-                )
+                handleError(e, "Erro ao buscar usuário")
             }
         }
     }
 
-    fun createUser(name: String){
+    private fun createUser(name: String) {
         viewModelScope.launch {
-            _uiState.value = UserUiState.Loading
+            startLoading()
 
             try {
                 val createdUser = createUserUseCase(name)
 
-                _uiState.value = UserUiState.UserDetailSuccess(createdUser)
-            } catch (e: CancellationException){
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        selectedUser = createdUser,
+                        users = it.users + createdUser
+                    )
+                }
+
+                _effect.emit(
+                    UserContract.Effect.ShowMessage(
+                        "Usuário criado com sucesso"
+                    )
+                )
+
+            } catch (e: CancellationException) {
                 throw e
 
             } catch (e: Exception) {
-                _uiState.value = UserUiState.Error(
-                    message = e.message ?: "Erro ao criar usuario"
-                )
+                handleError(e, "Erro ao criar usuário")
             }
         }
     }
 
-    fun updateUser(id: Long, newName: String){
+    private fun updateUser(id: Long, newName: String) {
         viewModelScope.launch {
-            _uiState.value = UserUiState.Loading
+            startLoading()
 
             try {
                 val updatedUser = updateUserUseCase(id, newName)
 
-                _uiState.value = UserUiState.UserDetailSuccess(updatedUser)
-            } catch (e: CancellationException){
+                _uiState.update { state ->
+                    state.copy(
+                        isLoading = false,
+                        selectedUser = updatedUser,
+                        users = state.users.map { user ->
+                            if (user.id == id) updatedUser else user
+                        }
+                    )
+                }
+
+                _effect.emit(
+                    UserContract.Effect.ShowMessage(
+                        "Usuário atualizado com sucesso"
+                    )
+                )
+
+            } catch (e: CancellationException) {
                 throw e
 
             } catch (e: Exception) {
-                _uiState.value = UserUiState.Error(
-                    message = e.message ?: "Erro ao atualizar usuario"
-                )
+                handleError(e, "Erro ao atualizar usuário")
             }
         }
     }
 
-    fun deleteUser(id: Long){
+    private fun deleteUser(id: Long) {
         viewModelScope.launch {
-            _uiState.value = UserUiState.Loading
+            startLoading()
 
             try {
                 deleteUserUseCase(id)
 
-                _uiState.value = UserUiState.DeletedUserSuccess
-            } catch (e: CancellationException){
+                _uiState.update { state ->
+                    state.copy(
+                        isLoading = false,
+                        users = state.users.filterNot { it.id == id },
+                        selectedUser = state.selectedUser
+                            ?.takeUnless { it.id == id }
+                    )
+                }
+
+                _effect.emit(
+                    UserContract.Effect.ShowMessage(
+                        "Usuário excluído com sucesso"
+                    )
+                )
+
+            } catch (e: CancellationException) {
                 throw e
 
-            } catch (e: Exception){
-                _uiState.value = UserUiState.Error(
-                    message = e.message ?: "Erro ao excluir usuario"
-                )
+            } catch (e: Exception) {
+                handleError(e, "Erro ao excluir usuário")
             }
+        }
+    }
+
+    private fun startLoading() {
+        _uiState.update {
+            it.copy(
+                isLoading = true,
+                errorMessage = null
+            )
+        }
+    }
+
+    private fun handleError(
+        exception: Exception,
+        defaultMessage: String
+    ) {
+        _uiState.update {
+            it.copy(
+                isLoading = false,
+                errorMessage = exception.message ?: defaultMessage
+            )
+        }
+    }
+
+    private fun clearError() {
+        _uiState.update {
+            it.copy(errorMessage = null)
         }
     }
 }
