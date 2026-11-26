@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
@@ -66,12 +67,36 @@ fun UserScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 
+                when {
+                    uiState.isSessionLoading -> {
+                        Text("Carregando sessao...")
+                    }
+
+                    uiState.sessionUserId == null -> {
+                        Text("Nenhum usuario selecionado")
+                    }
+
+                    else -> {
+                        Text("Sessao ativa - ID: ${uiState.sessionUserId}")
+                    }
+                }
+
+                if (uiState.sessionUserId != null && !uiState.isSessionLoading){
+                    Button(
+                        onClick = {
+                            viewModel.onEvent(UserContract.Event.Logout)
+                        }
+                    ) {
+                        Text("Encerrar sessao")
+                    }
+                }
+
                 uiState.errorMessage?.let { message ->
                     Text(text = message)
                 }
 
                 uiState.selectedUser?.let { user ->
-                    Text(text = "Usuário selecionado")
+                    Text(text = "Detalhes do usuario")
                     Text(text = "ID: ${user.id}")
                     Text(text = user.name)
 
@@ -97,6 +122,11 @@ fun UserScreen(
                         ) {
                             Text(text = user.name)
                             Text(text = "ID: ${user.id}")
+                            Button(
+                                onClick = { viewModel.onEvent(UserContract.Event.SelectUser(user.id)) }
+                            ) {
+                                Text("Selecionar Usuario")
+                            }
 
                             HorizontalDivider()
                         }

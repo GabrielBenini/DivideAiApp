@@ -8,7 +8,9 @@ object UserContract {
         val isLoading: Boolean = false,
         val users: List<User> = emptyList(),
         val selectedUser: User? = null,
-        val errorMessage: String? = null
+        val errorMessage: String? = null,
+        val sessionUserId: Long? = null,
+        val isSessionLoading: Boolean = true
     )
 
     sealed interface Event {
@@ -27,6 +29,10 @@ object UserContract {
         data class DeleteUser(val id: Long) : Event
 
         data object ClearError : Event
+
+        data class SelectUser(val userId: Long): Event
+
+        data object Logout: Event
     }
 
     sealed interface Effect {
